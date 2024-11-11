@@ -1,0 +1,20 @@
+{
+  "name": "lab-05",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node --watch start.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^5.20.0",
+    "express": "^4.17.1"
+  },
+  "type": "module",
+  "devDependencies": {
+    "prisma": "^5.22.0"
+  }
+}
