@@ -24,6 +24,7 @@ app.get("/users/", async (req, res) => {
 // Get all recipes
 app.get("/recipes/", async (req, res) => {
   let recipes = await prisma.recipe.findMany();
+  console.log("HEY NEW TEST LINE");
   res.json(recipes);
 });
 
