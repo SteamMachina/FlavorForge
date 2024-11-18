@@ -1,212 +1,368 @@
-import express from "express";
-import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
+import express from 'express'
+import { PrismaClient } from '@prisma/client'
+const prisma = new PrismaClient()
 
-const app = express();
+
+const app = express()
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get("/", (req, res) => {
-  res.send("Home");
-});
 
-/***************** */
-/*     GET ALL     */
-/***************** */
+// this is the simpliest example - if you go to the localhost:3000, if show you "Hello world"
+app.get('/', (req, res) => {
+  res.send('Hello World!')
+})
 
-// Get all users
-app.get("/users/", async (req, res) => {
-  let users = await prisma.user.findMany();
-  res.json(users);
-});
 
-// Get all recipes
-app.get("/recipes/", async (req, res) => {
-  let recipes = await prisma.recipe.findMany();
-  res.json(recipes);
-});
+app.get('/users/', async (req, res) => {
+  try{
+    const allUsers = await prisma.user.findMany();
 
-// Get all comments
-app.get("/comments/", async (req, res) => {
-  let comments = await prisma.comment.findMany();
-  res.json(comments);
-});
+    res.status(200).json(allUsers);
+    return;
+  } catch(e) {
+    console.error(e)
+    res.status(500).json({error: "Error getting the users"})
+  }
+})
 
-/********************** */
-/*     GET SPECIFIC     */
-/********************** */
+// TASK 1 - Get all recipes with optional filter for published via query ?published=true
+// Handle error 500 
+// Tips https://docs.google.com/presentation/d/1IyK-z95aTWcT0LNyZt5itBbuawNY-zFxaNTih4MhfKQ/edit?usp=sharing
+// Tips https://docs.google.com/presentation/d/17hIxbj8vsy7opjUwVM5RIjdRCf41Xts-EGLRMFNJnJg/edit?usp=sharing
+app.get('/recipes/', async(req, res) => {
+  try{
+    const published = req.query.published
+    let allRecipes;
+    if(published === "true"){
+      allRecipes = await prisma.recipe.findMany({
+        where:{
+          published : true
+        }
+      })
+    }else if(published === "false"){
+      allRecipes = await prisma.recipe.findMany({
+      where:{
+        published : false
+      }})
+    }else{
+    allRecipes = await prisma.recipe.findMany()
+    }
+    res.status(200).json(allRecipes);
+    return;
+  }catch(e){
+    console.error(e)
+    res.status(500).json({error: "Error getting the recipes"})
+  }
+})
 
-// Get specific user
-app.get("/users/:id", async (req, res) => {
-  try {
+// TASK 2 - Get specific user
+// Handle error 404 - not found, 500 - generic error
+app.get('/users/:id', async (req, res) => {
+  try{
     const user = await prisma.user.findUnique({
       where: {
-        id: parseInt(req.params.id),
-      },
-    });
-
-    if (user) {
-      res.json(user);
-    } else {
-      res.status(404).json({ error: "User not found" });
+        id: parseInt(req.params.id)
+      }
+    })
+    if(user){
+      res.json(user)
+    }else{
+      res.status(404).json({error: "User not found"})
     }
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: "Server crashed" });
+  }catch(e){
+    console.error(e)
+    res.status(500).json({error: "Error getting the user"})
   }
-});
+})
 
-// Get specific recipe
-app.get("/recipes/:id", async (req, res) => {
-  try {
+// TASK 3 - Get specific recipe
+// Handle error 404 -  not found, 500 - generic error
+
+app.get('/recipes/:id', async (req, res) => {
+  try{
     const recipe = await prisma.recipe.findUnique({
       where: {
-        id: parseInt(req.params.id),
-      },
-    });
-
-    if (recipe) {
-      res.json(recipe);
-    } else {
-      res.status(404).json({ error: "Recipe not found" });
+        id: parseInt(req.params.id)
+      }
+    })
+    if(recipe){
+      res.json(recipe)
+    }else{
+      res.status(404).json({error: "Recipe not found"})
     }
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: "Server crashed" });
+  }catch(e){
+    console.error(e)
+    res.status(500).json({error: "Error getting the Recipe"})
   }
-});
+})
 
-// Get specific comment
-app.get("/comments/:id", async (req, res) => {
-  try {
-    const comment = await prisma.comment.findUnique({
-      where: {
-        id: parseInt(req.params.id),
-      },
-    });
+// TASK 4 - Get all recipes from the user, add optional filter for publish via query ?published=true
+// Handle error 404 - user not found, 500 - generic error
 
-    if (comment) {
-      res.json(comment);
-    } else {
-      res.status(404).json({ error: "Comment not found" });
+app.get('/users/:id/recipes', async(req, res) => {
+  try{
+    const id = req.params.id
+    const published = req.query.published
+    const user = await prisma.recipe.findUnique({
+      where:{
+        id: parseInt(id)
+      }
+    })
+    
+    if(!user){
+      res.status(404).json({error: "Recipe not found"})
     }
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: "Server crashed" });
+
+    let allRecipes;
+
+    if(published === "true"){
+      allRecipes = await prisma.recipe.findMany({
+        where:{
+          authorId: parseInt(id),
+          published : true
+        }
+      })
+    }else if(published === "false"){
+      allRecipes = await prisma.recipe.findMany({
+      where:{
+        authorId: parseInt(id),
+        published : false
+      }})
+    }else{
+    allRecipes = await prisma.recipe.findMany({
+      where:{
+        authorId: parseInt(id)
+      }
+    })
+    }
+    
+    res.status(200).json(allRecipes);
+    return;
+  }catch(e){
+    console.error(e)
+    res.status(500).json({error: "Error getting the recipes"})
   }
-});
+})
 
-/**************** */
-/*     CREATE     */
-/**************** */
 
-// Create user
-app.post("/users/create", async (req, res) => {
-  try {
-    const email = req.body.email;
-    const name = req.body.name;
+// TASK 5 - Create USER 
+// Correct status 201 on created,
+// Handle error 409  - conflict, 500 - generic error
 
-    if (!email) {
-      res.status(400).json({ error: "Email is missing" });
-      return;
-    }
-    if (!name) {
-      res.status(400).json({ error: "Name is missing" });
-      return;
+app.post('/users/', async (req, res) => {
+  try{
+    const email = req.body.email
+    const name = req.body.name
+
+    const doesExist = await prisma.user.findUnique({
+      where:{
+        email: email
+      }
+    })
+
+    if (doesExist){
+      res.status(409).json({error: "The user exists"})
+      return
     }
 
     const user = await prisma.user.create({
-      data: {
+      data:{
         email: email,
-        name: name,
-      },
-    });
-    res.json(user);
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: "Server crashed" });
+        name: name
+      }
+    })
+    res.status(201).json(user)
+  }catch(e){
+    console.error(e)
+    res.status(500).json({error: "Error users"})
   }
-});
+})
 
-// Create recipe
-app.post("/recipes/create", async (req, res) => {
-  try {
-    const title = req.body.title;
-    const content = req.body.content;
-    const authorId = req.body.authorId;
 
-    if (!title) {
-      res.status(404).json({ error: "Title is missing" });
-      return;
-    }
-    if (!content) {
-      res.status(404).json({ error: "Content is missing" });
-      return;
-    }
-    if (!authorId) {
-      res.status(404).json({ error: "Author ID is missing" });
-      return;
-    }
-    if (!Number.isFinite(parseInt(authorId))) {
-      res.status(404).json({ error: "Author ID is not a number" });
-      return;
+// TASK 6 - Create recipe 
+// Handle error 409  - conflict, 500 - generic error
+
+app.post('/recipes/', async (req, res) => {
+  try{
+    
+
+    const recipeTitle=req.body.title
+    const recipeContent = req.body.content
+    const recipeAuthorId = req.body.authorId
+
+    const doesExist = await prisma.recipe.findMany({
+      where:{ 
+          title :recipeTitle,
+          content: recipeContent,
+          authorId: parseInt(recipeAuthorId)
+      }
+    })
+    if (doesExist[0]!= null){
+      res.status(409).json({error: "The recipe already exists"})
+      return
     }
 
-    const recipe = await prisma.recipe.create({
+    const newRecipe = await prisma.recipe.create({
       data: {
+        title: recipeTitle,
+        content: recipeContent,
+        author:{
+          connect: {id: parseInt(recipeAuthorId)}
+        },
+      },
+    })
+    res.status(201).json(newRecipe)
+  }catch(e){
+    console.error(e)
+    res.status(500).json({error: "Error recipes"})
+  }
+})
+
+// TASK 7 - Update  USER 
+// Handle error 404  - not found, 500 - generic error
+
+app.put('/users/:id', async (req, res) => {
+  try{
+    const userID = parseInt(req.params.id)
+    const email = req.body.email
+    const name = req.body.name
+
+    const doesExist = await prisma.user.findUnique({
+      where:{
+        id: userID
+      }
+    })
+
+    if (!doesExist){
+      res.status(409).json({error: "The user doesn't exists"})
+      return
+    }
+
+    const user = await prisma.user.update({
+      where:{
+        id: userID
+      },
+      data:{
+        email: email,
+        name: name
+      }
+    })
+    res.status(200).json(user)
+  }catch(e){
+    console.error(e)
+    res.status(500).json({error: "Error users"})
+  }
+})
+
+// TASK 8 - Delete USER
+
+app.delete('/users/:id', async (req, res) => {
+  try{
+    const userID = parseInt(req.params.id)
+
+    let user = await prisma.user.findUnique({
+      where:{
+        id: userID
+      }
+    })
+
+    if(!user){
+      res.status(404).json({error: "User not found"})
+      return
+    }
+
+    await prisma.recipe.deleteMany({
+      where:{
+          authorId: userID
+      }
+    })
+
+    await prisma.user.delete({
+      where: {
+        id: userID
+      }
+    })
+
+    
+    res.status(200).json({message: "User successfully deleted"})
+  }catch(e){
+    console.error(e)
+    res.status(500).json({error: "Error deleting the user"})
+  }
+})
+
+// Update recipe
+
+app.put('/recipes/:id', async (req, res) => {
+  try{
+    const recipeID = parseInt(req.params.id)
+    const content = req.body.content
+    const title = req.body.title
+    const published = req.body.published
+
+    const doesExist = await prisma.user.findUnique({
+      where:{
+        id: recipeID
+      }
+    })
+
+    if (!doesExist){
+      res.status(409).json({error: "The recipe doesn't exists"})
+      return
+    }
+
+    const recipe = await prisma.recipe.update({
+      where:{
+        id: recipeID
+      },
+      data:{
+        content: content,
         title: title,
-        content: content,
-        author: { connect: { id: parseInt(authorId) } },
-      },
-    });
-    res.json(recipe);
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: "Server crashed" });
+        published: published === "true"
+      }
+    })
+    res.status(200).json(recipe)
+  }catch(e){
+    console.error(e)
+    res.status(500).json({error: "Error updating recipes"})
   }
-});
+})
 
-// Create comment
-app.post("/comments/create", async (req, res) => {
-  try {
-    const content = req.body.content;
-    const authorId = req.body.authorId;
-    const recipeId = req.body.recipeId;
+app.delete('/recipes/:id', async (req, res) => {
+  try{
+    const recipeID = parseInt(req.params.id)
 
-    if (!content) {
-      res.status(404).json({ error: "Content is missing" });
-      return;
-    }
-    if (!authorId) {
-      res.status(404).json({ error: "Author ID is missing" });
-      return;
-    }
-    if (!Number.isFinite(parseInt(authorId))) {
-      res.status(404).json({ error: "Author ID is not a number" });
-      return;
-    }
-    if (!recipeId) {
-      res.status(404).json({ error: "Recipe ID is missing" });
-      return;
-    }
-    if (!Number.isFinite(parseInt(recipeId))) {
-      res.status(404).json({ error: "Recipe ID is not a number" });
-      return;
+    let recipe = await prisma.recipe.findUnique({
+      where:{
+        id: recipeID
+      }
+    })
+
+    if(!recipe){
+      res.status(404).json({error: "recipe not found"})
+      return
     }
 
-    const comment = await prisma.comment.create({
-      data: {
-        content: content,
-        author: { connect: { id: parseInt(authorId) } },
-        recipe: { connect: { id: parseInt(recipeId) } },
-      },
-    });
-    res.json(comment);
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: "Server crashed" });
+    await prisma.recipe.delete({
+      where: {
+        id: recipeID
+      }
+    })
+
+    
+    res.status(200).json({message: "recipe successfully deleted"})
+  }catch(e){
+    console.error(e)
+    res.status(500).json({error: "Error deleting the recipe"})
   }
-});
+})
+
+
+// First delete all recipes created by the user / then delete the user
+// JUST FYI we don't have to use it but there is cascade https://www.prisma.io/docs/orm/prisma-schema/data-model/relations/referential-actions#cascade
+// Handle error 404  - not found, 500 - generic error
+
 
 export { app };
