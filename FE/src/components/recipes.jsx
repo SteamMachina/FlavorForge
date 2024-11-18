@@ -11,6 +11,9 @@ export default function Recipes() {
         <li>
             <h2>Sesame Chicken</h2>
         </li>
+        <li>
+            <h2>Soupe aux choux</h2>
+        </li>
       </ul>
     </div>
   );
