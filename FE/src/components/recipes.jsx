@@ -1,19 +1,19 @@
 import React from "react";
-
+import { getRecipes } from "./APIstuff";
+import { useState ,useEffect} from "react";
 export default function Recipes() {
+  const [recipesList, setRecipesList] = useState([]);
+
+  useEffect(() => {
+    getRecipes().then((newData) => setRecipesList(newData));
+  }, []);
   return (
     <div>
       <h1>Recipes</h1>
       <ul>
-        <li>
-            <h2>Lugaw</h2>
-        </li>
-        <li>
-            <h2>Sesame Chicken</h2>
-        </li>
-        <li>
-            <h2>Soupe aux choux</h2>
-        </li>
+        {recipesList.map((item,index) => (
+        <li key = {index} >{item}</li>
+        ))}
       </ul>
     </div>
   );
