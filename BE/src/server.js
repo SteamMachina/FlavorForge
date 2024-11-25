@@ -105,14 +105,15 @@ app.get('/users/:id/recipes', async(req, res) => {
   try{
     const id = req.params.id
     const published = req.query.published
-    const user = await prisma.recipe.findUnique({
+    const user = await prisma.recipe.findMany({
       where:{
-        id: parseInt(id)
+        authorId: parseInt(id)
       }
     })
     
-    if(!user){
-      res.status(404).json({error: "Recipe not found"})
+    if(user[0]==null){
+      res.status(404).json({error: "User not found or user has no recipe"})
+      return;
     }
 
     let allRecipes;
@@ -163,7 +164,7 @@ app.post('/users/', async (req, res) => {
     })
 
     if (doesExist){
-      res.status(409).json({error: "The user exists"})
+      res.status(409).json({error: "Email already in use"})
       return
     }
 
@@ -188,11 +189,11 @@ app.post('/recipes/', async (req, res) => {
   try{
     
 
-    const recipeTitle=req.body.title
+    const recipeTitle = req.body.title
     const recipeContent = req.body.content
     const recipeAuthorId = req.body.authorId
 
-    const doesExist = await prisma.recipe.findMany({
+    const doesExist = await prisma.recipe.findMany({ // Find many because not Searching for id
       where:{ 
           title :recipeTitle,
           content: recipeContent,
