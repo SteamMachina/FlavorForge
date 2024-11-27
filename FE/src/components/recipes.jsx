@@ -13,7 +13,10 @@ export default function Recipes() {
       <h1>Recipes</h1>
       <ul>
         {recipesList.map((item,index) => (
-        <li key = {index} >{item}</li>
+        <ul key = {index} >{item.title}
+        <p>{item.content}</p>
+        </ul>
+
         ))}
       </ul>
     </div>
