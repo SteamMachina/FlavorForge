@@ -42,15 +42,26 @@ app.get('/recipes/', async(req, res) => {
       allRecipes = await prisma.recipe.findMany({
         where:{
           published : true
-        }
+        },
+        include: {
+          author: true, // Include author details
+        },
       })
     }else if(published === "false"){
       allRecipes = await prisma.recipe.findMany({
-      where:{
-        published : false
-      }})
+        where:{
+          published : false
+        },
+        include: {
+          author: true, // Include author details
+        },
+      })
     }else{
-    allRecipes = await prisma.recipe.findMany()
+    allRecipes = await prisma.recipe.findMany({
+      include: {
+        author: true, // Include author details
+      },
+    })
     }
     res.status(200).json(allRecipes);
     return;
@@ -365,7 +376,6 @@ app.delete('/recipes/:id', async (req, res) => {
     res.status(500).json({error: "Error deleting the recipe"})
   }
 })
-
 
 // First delete all recipes created by the user / then delete the user
 // JUST FYI we don't have to use it but there is cascade https://www.prisma.io/docs/orm/prisma-schema/data-model/relations/referential-actions#cascade
