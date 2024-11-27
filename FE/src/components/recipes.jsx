@@ -7,6 +7,7 @@ export default function Recipes() {
   useEffect(() => {
     getRecipes().then((newData) => setRecipesList(newData));
   }, []);
+  console.log(recipesList)
   return (
     <div>
       <h1>Recipes</h1>
