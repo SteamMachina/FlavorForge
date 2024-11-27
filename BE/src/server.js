@@ -190,8 +190,6 @@ app.post('/users/', async (req, res) => {
 
 app.post('/recipes/', async (req, res) => {
   try{
-    
-
     const recipeTitle = req.body.title
     const recipeContent = req.body.content
     const recipeAuthorId = req.body.authorId
@@ -305,6 +303,7 @@ app.put('/recipes/:id', async (req, res) => {
     const content = req.body.content
     const title = req.body.title
     const published = req.body.published
+    const recommended = req.body.recommended
 
     const doesExist = await prisma.user.findUnique({
       where:{
@@ -324,7 +323,8 @@ app.put('/recipes/:id', async (req, res) => {
       data:{
         content: content,
         title: title,
-        published: published === "true"
+        published: published === "true",
+        recommended: recommended === "true",
       }
     })
     res.status(200).json(recipe)
@@ -333,6 +333,9 @@ app.put('/recipes/:id', async (req, res) => {
     res.status(500).json({error: "Error updating recipes"})
   }
 })
+
+
+// delete recipe 
 
 app.delete('/recipes/:id', async (req, res) => {
   try{

@@ -22,7 +22,7 @@ model Recipe {
   id        Int     @id @default(autoincrement())
   title     String
   content   String?
-  Boolean   Recommended
+  recommended Boolean @default(false)
   published Boolean @default(false)
   author    User    @relation(fields: [authorId], references: [id])
   authorId  Int
