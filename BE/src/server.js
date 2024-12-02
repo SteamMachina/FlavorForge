@@ -55,7 +55,6 @@ app.get("/recipes/", async (req, res) => {
         author: true, // Include author details
       },
     });
-    // Return the response without an image property for recipes without an image
     const recipes = allRecipes.map((recipe) => {
       const { image, ...rest } = recipe; // Destructure image out of the recipe
       return image ? recipe : rest; // Include image only if it exists
