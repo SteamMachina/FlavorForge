@@ -24,7 +24,7 @@ export default function Home() {
     <Container>
       <Typography variant="h3" align="center" gutterBottom>
         <h1>Welcome to Flavor Forge !</h1>
-        Recommended Recipes :
+        Most loved Recipes :
       </Typography>
       <Grid container spacing={3}>
         {recipesList.map((item, index) => (

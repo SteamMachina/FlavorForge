@@ -18,3 +18,8 @@ export async function getRecipesRecommended() {
   });
   return response.data;
 }
+
+export async function getUsers() {
+  const response = await axios.get("http://localhost:3000/users");
+  return response.data;
+}
