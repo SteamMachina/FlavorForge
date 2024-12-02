@@ -31,8 +31,7 @@ app.get("/users/", async (req, res) => {
 // Tips https://docs.google.com/presentation/d/17hIxbj8vsy7opjUwVM5RIjdRCf41Xts-EGLRMFNJnJg/edit?usp=sharing
 app.get("/recipes/", async (req, res) => {
   try {
-    const { published } = req.query; // Destructure query parameter
-    const { recommended } = req.query;
+    const { published, recommended } = req.query; // Destructure query parameters
     const filters = {};
 
     // Apply filters based on the published query parameter
@@ -49,21 +48,20 @@ app.get("/recipes/", async (req, res) => {
       filters.recommended = false;
     }
 
-    // Fetch recipes with author details and the image field
+    // Fetch recipes with author details
     const allRecipes = await prisma.recipe.findMany({
       where: filters,
       include: {
         author: true, // Include author details
       },
     });
+    // Return the response without an image property for recipes without an image
+    const recipes = allRecipes.map((recipe) => {
+      const { image, ...rest } = recipe; // Destructure image out of the recipe
+      return image ? recipe : rest; // Include image only if it exists
+    });
 
-    // Return the response with a default placeholder image for recipes without an image
-    const recipesWithImages = allRecipes.map((recipe) => ({
-      ...recipe,
-      image: recipe.image || "https://via.placeholder.com/150", // Default placeholder image
-    }));
-
-    res.status(200).json(recipesWithImages);
+    res.status(200).json(recipes);
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: "Error getting the recipes" });

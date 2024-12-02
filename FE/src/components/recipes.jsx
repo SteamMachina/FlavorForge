@@ -1,6 +1,5 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { getRecipesPublished } from "./APIstuff";
-import { useState, useEffect } from "react";
 import {
   Typography,
   Card,
@@ -23,7 +22,7 @@ export default function Recipes() {
   return (
     <Container>
       <Typography variant="h3" align="center" gutterBottom>
-        All recipes
+        All Recipes
       </Typography>
       <Grid container spacing={3}>
         {recipesList.map((item, index) => (
@@ -34,7 +33,7 @@ export default function Recipes() {
                   component="img"
                   height="140"
                   image={item.image}
-                  alt={item.title}
+                  alt={item.title || "Recipe Image"}
                 />
               )}
               <CardHeader
