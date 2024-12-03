@@ -11,9 +11,10 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 
+
 function App() {
   const [value, setValue] = useState(0);
-
+  const [user, setUser] = useState(null);
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
@@ -39,7 +40,7 @@ function App() {
       </AppBar>
       <Container sx={{ marginTop: 4 }}>
         <Box>
-          <Outlet />
+            <Outlet context={{user, setUser}} />
         </Box>
       </Container>
     </>

@@ -23,3 +23,11 @@ export async function getUsers() {
   const response = await axios.get("http://localhost:3000/users");
   return response.data;
 }
+
+export async function createUser(name,email,password){
+  await axios.post("http://localhost:3000/users/", {
+    email: email,
+    name: name,
+    password: password,
+  });
+}

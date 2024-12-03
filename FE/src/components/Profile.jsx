@@ -1,58 +1,42 @@
 import React from "react";
-import { getUsers } from "./APIstuff";
-import { useState, useEffect } from "react";
+import { useState, useEffect} from "react";
+import { Outlet } from "react-router"
+import { Link, useNavigate, useOutletContext} from "react-router-dom";
 import {
   Typography,
-  Card,
-  CardContent,
-  CardHeader,
-  CardMedia,
-  CardActions,
-  Grid,
-  Box,
   Container,
 } from "@mui/material";
 
-export default function Recipes() {
-  const [usersList, setUsersList] = useState([]);
-
+export default function Profile() {
+  const { user, setUser } = useOutletContext();
+  const navigate = useNavigate();
   useEffect(() => {
-    getUsers().then((newData) => setUsersList(newData));
-  }, []);
-
+    if (user == null) {
+      navigate("/login");
+    }
+ }, [user]);
   return (
-    <Container>
-      <Typography variant="h3" align="center" gutterBottom>
-        All users
-      </Typography>
-      <Grid container spacing={3}>
-        {usersList.map((item, index) => (
-          <Grid item xs={12} sm={6} md={4} key={index}>
-            <Card elevation={3}>
-              {item.image && (
-                <CardMedia
-                  component="img"
-                  height="140"
-                  image={item.image}
-                  alt={item.name}
-                />
-              )}
-              <CardHeader
-                title={item.name}
-                titleTypographyProps={{ variant: "h6", align: "center" }}
-              />
-              <CardContent>
-                <Typography variant="body1" gutterBottom>
-                  {item.email}
-                </Typography>
-              </CardContent>
-              <CardActions>
-                {/* Add any additional buttons/actions here */}
-              </CardActions>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-    </Container>
+      <Container>
+        <Typography
+          variant="h2"
+          align="center"
+          style={{ marginTop: "16px" }}
+        >
+          Login{" "}
+          <Link
+            to="/profile/login"
+            style={{
+              textDecoration: "none",
+              color: "#3f51b5",
+              fontWeight: "bold",
+            }}
+          >
+            Login here
+          </Link>
+        </Typography>
+        <Typography>
+            {user}
+        </Typography>
+      </Container>
   );
 }

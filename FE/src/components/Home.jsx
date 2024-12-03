@@ -30,14 +30,6 @@ export default function Home() {
         {recipesList.map((item, index) => (
           <Grid item xs={12} sm={6} md={4} key={index}>
             <Card elevation={3}>
-              {item.image && (
-                <CardMedia
-                  component="img"
-                  height="140"
-                  image={item.image}
-                  alt={item.title}
-                />
-              )}
               <CardHeader
                 title={item.title}
                 titleTypographyProps={{ variant: "h6", align: "center" }}

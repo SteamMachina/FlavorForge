@@ -14,6 +14,7 @@ model User {
   id    Int     @id @default(autoincrement())
   email String  @unique
   name  String?
+  password String?
   recipes Recipe[]
   comments Comment[]
 }
@@ -27,7 +28,6 @@ model Recipe {
   author    User    @relation(fields: [authorId], references: [id])
   authorId  Int
   comments Comment[]
-  image       String?   // New field to store image URLs
 }
 
 model Comment {

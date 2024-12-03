@@ -55,12 +55,14 @@ app.get("/recipes/", async (req, res) => {
         author: true, // Include author details
       },
     });
-    const recipes = allRecipes.map((recipe) => {
+
+    //Obsolete code used to implement images (for future projects)
+    /*const recipes = allRecipes.map((recipe) => {
       const { image, ...rest } = recipe; // Destructure image out of the recipe
       return image ? recipe : rest; // Include image only if it exists
-    });
+    });*/
 
-    res.status(200).json(recipes);
+    res.status(200).json(allRecipes);
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: "Error getting the recipes" });
@@ -69,11 +71,11 @@ app.get("/recipes/", async (req, res) => {
 
 // TASK 2 - Get specific user
 // Handle error 404 - not found, 500 - generic error
-app.get("/users/:id", async (req, res) => {
+app.get("/users/:email", async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
       where: {
-        id: parseInt(req.params.id),
+        email: req.params.email,
       },
     });
     if (user) {
@@ -166,6 +168,7 @@ app.post("/users/", async (req, res) => {
   try {
     const email = req.body.email;
     const name = req.body.name;
+    const password = req.body.password;
 
     const doesExist = await prisma.user.findUnique({
       where: {
@@ -182,6 +185,7 @@ app.post("/users/", async (req, res) => {
       data: {
         email: email,
         name: name,
+        password: password,
       },
     });
     res.status(201).json(user);
