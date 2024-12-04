@@ -31,3 +31,8 @@ export async function createUser(name,email,password){
     password: password,
   });
 }
+
+export async function getUser(email){
+  const response = await axios.get(`http://localhost:3000/users/${email}`);
+  return response.data;
+}

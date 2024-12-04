@@ -1,20 +1,42 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import {
   Container,
   TextField,
   Button,
   Typography,
   Box,
+  Alert,
 } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Link ,useOutletContext, useNavigate} from "react-router-dom";
+import { getUser } from "./APIstuff";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [alert, setAlert] = useState({ message: "", severity: "", visible: false });
+  const { user, setUser } = useOutletContext();
+  const navigate = useNavigate();
+  useEffect(() => {
+    console.log(user)
+    if (user!=null) {
+      navigate("/profile");
+    }
+  }, [user]);
 
-  const handleLogin = () => {
-    // Simple placeholder for login action
-    console.log("Login Attempted:", { email, password });
+  const handleLogin = async () => {
+      const userAttempt = await getUser(email);
+    try{
+      console.log("Login Attempted:", userAttempt);
+
+      if (password===userAttempt.password){
+        setUser(userAttempt);
+        setAlert({ message: "Login successful!", severity: "success", visible: true });
+      }else{
+        setAlert({ message: "Incorrect password. Please try again.", severity: "error", visible: true });
+      }
+    }catch (error) {
+      setAlert({ message: "User not found or server error.", severity: "error", visible: true });
+    }
   };
 
   return (
@@ -28,6 +50,16 @@ export default function Login() {
         height: "100vh",
       }}
     >
+      {alert.visible && (
+      <Alert
+        variant="filled"
+        severity={alert.severity}
+        style={{ marginBottom: "16px" }}
+        onClose={() => setAlert({ ...alert, visible: false })} // Close button handler
+      >
+        {alert.message}
+      </Alert>
+    )}
       <Box
         sx={{
           boxShadow: 3,

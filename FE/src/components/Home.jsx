@@ -1,6 +1,5 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { getRecipesRecommended } from "./APIstuff";
-import { useState, useEffect } from "react";
 import {
   Typography,
   Card,
@@ -8,7 +7,6 @@ import {
   CardHeader,
   CardMedia,
   CardActions,
-  Grid,
   Box,
   Container,
 } from "@mui/material";
@@ -23,13 +21,28 @@ export default function Home() {
   return (
     <Container>
       <Typography variant="h3" align="center" gutterBottom>
-        <h1>Welcome to Flavor Forge !</h1>
-        Most loved Recipes :
+        Welcome to Flavor Forge!
       </Typography>
-      <Grid container spacing={3}>
+      <Typography variant="h5" align="center" gutterBottom>
+        Most Loved Recipes:
+      </Typography>
+      <Box
+        display="flex"
+        flexWrap="wrap"
+        justifyContent="center"
+        gap={3}
+        sx={{ marginTop: 3 }}
+      >
         {recipesList.map((item, index) => (
-          <Grid item xs={12} sm={6} md={4} key={index}>
-            <Card elevation={3}>
+          <Box
+            key={index}
+            sx={{
+              width: "100%",
+              maxWidth: "300px",
+              flexGrow: 1,
+            }}
+          >
+            <Card elevation={3} sx={{ height: "100%" }}>
               <CardHeader
                 title={item.title}
                 titleTypographyProps={{ variant: "h6", align: "center" }}
@@ -46,9 +59,9 @@ export default function Home() {
                 {/* Add any additional buttons/actions here */}
               </CardActions>
             </Card>
-          </Grid>
+          </Box>
         ))}
-      </Grid>
+      </Box>
     </Container>
   );
 }
