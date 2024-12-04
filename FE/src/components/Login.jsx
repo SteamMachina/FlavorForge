@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   TextField,
@@ -7,38 +7,47 @@ import {
   Box,
   Alert,
 } from "@mui/material";
-import { Link ,useOutletContext, useNavigate} from "react-router-dom";
-import { getUser } from "./APIstuff";
+import { Link, useOutletContext, useNavigate } from "react-router-dom";
+import { checkLogin, getUser } from "./APIstuff";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [alert, setAlert] = useState({ message: "", severity: "", visible: false });
+  const [alert, setAlert] = useState({
+    message: "",
+    severity: "",
+    visible: false,
+  });
   const { user, setUser } = useOutletContext();
   const navigate = useNavigate();
   useEffect(() => {
-    console.log(user)
-    if (user!=null) {
+    console.log(user);
+    if (user != null) {
       navigate("/profile");
     }
   }, [user]);
 
   const handleLogin = async () => {
-
-
-      
-    try{
-      const userAttempt = await getUser(email);
-      console.log("Login Attempted:", userAttempt);
-
-      if (password===userAttempt.password){
-        setUser(userAttempt);
-        setAlert({ message: "Login successful!", severity: "success", visible: true });
-      }else{
-        setAlert({ message: "Incorrect password. Please try again.", severity: "error", visible: true });
+    try {
+      const userAttempt = await checkLogin(email, password);
+      if (userAttempt.success == true) {
+        const newUser = await getUser(email);
+        setUser(newUser);
       }
-    }catch (error) {
-      setAlert({ message: "User not found or server error.", severity: "error", visible: true });
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        setAlert({
+          message: "Incorrect password or email. Please try again.",
+          severity: "warning", // Adjust severity if needed
+          visible: true,
+        });
+      } else {
+        setAlert({
+          message: "Server error.",
+          severity: "error",
+          visible: true,
+        });
+      }
     }
   };
 
@@ -54,15 +63,15 @@ export default function Login() {
       }}
     >
       {alert.visible && (
-      <Alert
-        variant="filled"
-        severity={alert.severity}
-        style={{ marginBottom: "16px" }}
-        onClose={() => setAlert({ ...alert, visible: false })} // Close button handler
-      >
-        {alert.message}
-      </Alert>
-    )}
+        <Alert
+          variant="filled"
+          severity={alert.severity}
+          style={{ marginBottom: "16px" }}
+          onClose={() => setAlert({ ...alert, visible: false })} // Close button handler
+        >
+          {alert.message}
+        </Alert>
+      )}
       <Box
         sx={{
           boxShadow: 3,
@@ -120,4 +129,4 @@ export default function Login() {
       </Box>
     </Container>
   );
-};
+}

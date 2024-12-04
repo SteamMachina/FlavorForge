@@ -24,7 +24,7 @@ export async function getUsers() {
   return response.data;
 }
 
-export async function createUser(name,email,password){
+export async function createUser(name, email, password) {
   await axios.post("http://localhost:3000/users/", {
     email: email,
     name: name,
@@ -32,7 +32,14 @@ export async function createUser(name,email,password){
   });
 }
 
-export async function getUser(email){
+export async function getUser(email) {
   const response = await axios.get(`http://localhost:3000/users/${email}`);
+  return response.data;
+}
+
+export async function checkLogin(email, password) {
+  const response = await axios.get("http://localhost:3000/login/", {
+    params: { email: email, password: password },
+  });
   return response.data;
 }

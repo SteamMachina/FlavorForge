@@ -79,10 +79,7 @@ app.get("/users/:email", async (req, res) => {
       },
     });
     if (user) {
-
-      user.password = undefined
-    
-
+      user.password = undefined;
       res.json(user);
     } else {
       res.status(404).json({ error: "User not found" });
@@ -92,7 +89,6 @@ app.get("/users/:email", async (req, res) => {
     res.status(500).json({ error: "Error getting the user" });
   }
 });
-
 
 // TASK 3 - Get specific recipe
 // Handle error 404 -  not found, 500 - generic error
@@ -379,8 +375,29 @@ app.delete("/recipes/:id", async (req, res) => {
   }
 });
 
-// First delete all recipes created by the user / then delete the user
-// JUST FYI we don't have to use it but there is cascade https://www.prisma.io/docs/orm/prisma-schema/data-model/relations/referential-actions#cascade
-// Handle error 404  - not found, 500 - generic error
+//
+app.get("/login/", async (req, res) => {
+  try {
+    const email = req.query.email;
+    const password = req.query.password;
+    const user = await prisma.user.findUnique({
+      where: {
+        email: email,
+        password: password,
+      },
+    });
+
+    if (!user) {
+      res.status(401).json({ success: false });
+      return;
+    }
+
+    res.status(200).json({ success: true });
+    return;
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "Error getting the user" });
+  }
+});
 
 export { app };
