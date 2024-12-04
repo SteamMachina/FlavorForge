@@ -80,7 +80,6 @@ app.get("/users/:email", async (req, res) => {
     });
     if (user) {
 
-      user.password = undefined
     
 
       res.json(user);

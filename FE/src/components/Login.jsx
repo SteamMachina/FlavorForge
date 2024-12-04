@@ -24,16 +24,11 @@ export default function Login() {
   }, [user]);
 
   const handleLogin = async () => {
-
-
-      
     try{
       const userAttempt = await getUser(email);
-      console.log("Login Attempted:", userAttempt);
 
       if (password===userAttempt.password){
         setUser(userAttempt);
-        setAlert({ message: "Login successful!", severity: "success", visible: true });
       }else{
         setAlert({ message: "Incorrect password. Please try again.", severity: "error", visible: true });
       }

@@ -32,6 +32,15 @@ export async function createUser(name,email,password){
   });
 }
 
+export async function createRecipe(){
+  const response = await axios.post("http://localhost:3000/recipes/", {
+    title: title,
+    content: content,
+    authorId: authorId,
+  });
+  return response.data;
+}
+
 export async function getUser(email){
   const response = await axios.get(`http://localhost:3000/users/${email}`);
   return response.data;

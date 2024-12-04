@@ -13,6 +13,7 @@ import {
 
 export default function Recipes() {
   const [recipesList, setRecipesList] = useState([]);
+  const { user, setUser } = useOutletContext();
 
   useEffect(() => {
     getRecipesPublished().then((newData) => setRecipesList(newData));
