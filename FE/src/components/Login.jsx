@@ -28,6 +28,7 @@ export default function Login() {
   }, [user]);
 
   const handleLogin = async () => {
+<<<<<<< HEAD
     try {
       const userAttempt = await checkLogin(email, password);
       if (userAttempt.success == true) {
@@ -47,6 +48,15 @@ export default function Login() {
           severity: "error",
           visible: true,
         });
+=======
+    try{
+      const userAttempt = await getUser(email);
+
+      if (password===userAttempt.password){
+        setUser(userAttempt);
+      }else{
+        setAlert({ message: "Incorrect password. Please try again.", severity: "error", visible: true });
+>>>>>>> 25cd2d974deb33ab4fbd222a0ca65c1ed98e9fc6
       }
     }
   };

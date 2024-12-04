@@ -32,7 +32,20 @@ export async function createUser(name, email, password) {
   });
 }
 
+<<<<<<< HEAD
 export async function getUser(email) {
+=======
+export async function createRecipe(){
+  const response = await axios.post("http://localhost:3000/recipes/", {
+    title: title,
+    content: content,
+    authorId: authorId,
+  });
+  return response.data;
+}
+
+export async function getUser(email){
+>>>>>>> 25cd2d974deb33ab4fbd222a0ca65c1ed98e9fc6
   const response = await axios.get(`http://localhost:3000/users/${email}`);
   return response.data;
 }

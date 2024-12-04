@@ -16,7 +16,6 @@ model User {
   name  String?
   password String?
   recipes Recipe[]
-  comments Comment[]
 }
 
 model Recipe {
@@ -24,18 +23,6 @@ model Recipe {
   title     String
   content   String?
   recommended Boolean @default(false)
-  published Boolean @default(false)
   author    User    @relation(fields: [authorId], references: [id])
   authorId  Int
-  comments Comment[]
-}
-
-model Comment {
-  id        Int     @id @default(autoincrement())
-  content   String?
-  published Boolean @default(false)
-  author    User    @relation(fields: [authorId], references: [id])
-  authorId  Int
-  recipe    Recipe    @relation(fields: [recipeId], references: [id])
-  recipeId  Int
 }
