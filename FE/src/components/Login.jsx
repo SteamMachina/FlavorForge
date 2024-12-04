@@ -24,8 +24,11 @@ export default function Login() {
   }, [user]);
 
   const handleLogin = async () => {
-      const userAttempt = await getUser(email);
+
+
+      
     try{
+      const userAttempt = await getUser(email);
       console.log("Login Attempted:", userAttempt);
 
       if (password===userAttempt.password){

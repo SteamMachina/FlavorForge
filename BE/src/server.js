@@ -79,6 +79,10 @@ app.get("/users/:email", async (req, res) => {
       },
     });
     if (user) {
+
+      user.password = undefined
+    
+
       res.json(user);
     } else {
       res.status(404).json({ error: "User not found" });
@@ -88,6 +92,7 @@ app.get("/users/:email", async (req, res) => {
     res.status(500).json({ error: "Error getting the user" });
   }
 });
+
 
 // TASK 3 - Get specific recipe
 // Handle error 404 -  not found, 500 - generic error
