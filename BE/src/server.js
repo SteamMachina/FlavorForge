@@ -79,13 +79,7 @@ app.get("/users/:email", async (req, res) => {
       },
     });
     if (user) {
-<<<<<<< HEAD
       user.password = undefined;
-=======
-
-    
-
->>>>>>> 25cd2d974deb33ab4fbd222a0ca65c1ed98e9fc6
       res.json(user);
     } else {
       res.status(404).json({ error: "User not found" });
