@@ -117,8 +117,7 @@ app.get("/recipes/:id", async (req, res) => {
 app.get("/users/:id/recipes", async (req, res) => {
   try {
     const id = req.params.id;
-    const published = req.query.published;
-    const user = await prisma.recipe.findMany({
+    const userRecipes = await prisma.recipe.findMany({
       where: {
         authorId: parseInt(id),
       },
@@ -129,31 +128,7 @@ app.get("/users/:id/recipes", async (req, res) => {
       return;
     }
 
-    let allRecipes;
-
-    if (published === "true") {
-      allRecipes = await prisma.recipe.findMany({
-        where: {
-          authorId: parseInt(id),
-          published: true,
-        },
-      });
-    } else if (published === "false") {
-      allRecipes = await prisma.recipe.findMany({
-        where: {
-          authorId: parseInt(id),
-          published: false,
-        },
-      });
-    } else {
-      allRecipes = await prisma.recipe.findMany({
-        where: {
-          authorId: parseInt(id),
-        },
-      });
-    }
-
-    res.status(200).json(allRecipes);
+    res.status(200).json(userRecipes);
     return;
   } catch (e) {
     console.error(e);

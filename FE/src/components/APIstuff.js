@@ -46,3 +46,8 @@ export async function checkLogin(email, password) {
   });
   return response.data;
 }
+
+export async function getUserRecipes(id){
+  const response = await axios.get(`http://localhost:3000/users/${id}/recipes`);
+  return response.data;
+}
