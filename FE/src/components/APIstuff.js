@@ -5,7 +5,6 @@ export async function getRecipes() {
   return response.data;
 }
 
-
 export async function getRecipesRecommended() {
   const response = await axios.get("http://localhost:3000/recipes", {
     params: { recommended: true },
@@ -24,6 +23,7 @@ export async function createUser(name, email, password) {
     name: name,
     password: password,
   });
+  return response.data;
 }
 
 export async function createRecipe(title, content, authorId) {
@@ -47,7 +47,7 @@ export async function checkLogin(email, password) {
   return response.data;
 }
 
-export async function getUserRecipes(id){
+export async function getUserRecipes(id) {
   const response = await axios.get(`http://localhost:3000/users/${id}/recipes`);
   return response.data;
 }

@@ -117,7 +117,8 @@ app.get("/recipes/:id", async (req, res) => {
 app.get("/users/:id/recipes", async (req, res) => {
   try {
     const id = req.params.id;
-    const userRecipes = await prisma.recipe.findMany({
+    const published = req.query.published;
+    const user = await prisma.recipe.findMany({
       where: {
         authorId: parseInt(id),
       },
@@ -128,7 +129,31 @@ app.get("/users/:id/recipes", async (req, res) => {
       return;
     }
 
-    res.status(200).json(userRecipes);
+    let allRecipes;
+
+    if (published === "true") {
+      allRecipes = await prisma.recipe.findMany({
+        where: {
+          authorId: parseInt(id),
+          published: true,
+        },
+      });
+    } else if (published === "false") {
+      allRecipes = await prisma.recipe.findMany({
+        where: {
+          authorId: parseInt(id),
+          published: false,
+        },
+      });
+    } else {
+      allRecipes = await prisma.recipe.findMany({
+        where: {
+          authorId: parseInt(id),
+        },
+      });
+    }
+
+    res.status(200).json(allRecipes);
     return;
   } catch (e) {
     console.error(e);
@@ -168,6 +193,31 @@ app.post("/users/", async (req, res) => {
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: "Error users" });
+  }
+});
+
+//check login
+app.get("/login/", async (req, res) => {
+  try {
+    const email = req.query.email;
+    const password = req.query.password;
+    const user = await prisma.user.findUnique({
+      where: {
+        email: email,
+        password: password,
+      },
+    });
+
+    if (!user) {
+      res.status(401).json({ success: false });
+      return;
+    }
+
+    res.status(200).json({ success: true });
+    return;
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "Error getting the user" });
   }
 });
 
@@ -347,31 +397,6 @@ app.delete("/recipes/:id", async (req, res) => {
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: "Error deleting the recipe" });
-  }
-});
-
-//
-app.get("/login/", async (req, res) => {
-  try {
-    const email = req.query.email;
-    const password = req.query.password;
-    const user = await prisma.user.findUnique({
-      where: {
-        email: email,
-        password: password,
-      },
-    });
-
-    if (!user) {
-      res.status(401).json({ success: false });
-      return;
-    }
-
-    res.status(200).json({ success: true });
-    return;
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: "Error getting the user" });
   }
 });
 
