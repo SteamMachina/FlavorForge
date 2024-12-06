@@ -19,10 +19,10 @@ export default function Register() {
     visible: false,
   });
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     try {
       if (repeatPassword == password) {
-        createUser(name, email, password);
+        await createUser(name, email, password);
       } else {
         setAlert({
           message:
@@ -36,7 +36,7 @@ export default function Register() {
     } catch (error) {
       if (error.response && error.response.status === 409) {
         setAlert({
-          message: "Incorrect password or email. Please try again.",
+          message: "Email already in use.",
           severity: "warning", // Adjust severity if needed
           visible: true,
         });
