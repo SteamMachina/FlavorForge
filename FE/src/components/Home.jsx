@@ -21,10 +21,10 @@ export default function Home() {
 
   return (
     <Container>
-      <Typography variant="h3" align="center" gutterBottom>
+      <Typography variant="h3" align="center" gutterBottom color="primary">
         Welcome to Flavor Forge!
       </Typography>
-      <Typography variant="h5" align="center" gutterBottom>
+      <Typography variant="h5" align="center" gutterBottom color="secondary">
         Most Loved Recipes:
       </Typography>
       <Box

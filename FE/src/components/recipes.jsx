@@ -123,7 +123,7 @@ export default function Recipes() {
                 <Typography variant="body1" gutterBottom>
                   {item.content}
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
+                <Typography variant="body2">
                   <strong>Author:</strong> {item.author?.name || "Unknown"}
                 </Typography>
               </CardContent>
