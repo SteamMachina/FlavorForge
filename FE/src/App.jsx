@@ -8,9 +8,12 @@ import {
   Tab,
   Container,
   Box,
+  CssBaseline,
+  ThemeProvider
 } from "@mui/material";
 import { useState, useEffect } from "react";
-
+import './App.css';
+import theme from "./theme"; 
 
 function App() {
   const [value, setValue] = useState(0);
@@ -34,30 +37,31 @@ function App() {
   };
 
   return (
-    <>
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            My App
-          </Typography>
-          <Tabs
-            value={value}
-            onChange={handleChange}
-            textColor="inherit"
-            indicatorColor="secondary"
-          >
-            <Tab label="Home" component={Link} to="/" />
-            <Tab label="Profile" component={Link} to="/Profile" />
-            <Tab label="Recipes" component={Link} to="/Recipes" />
-          </Tabs>
-        </Toolbar>
-      </AppBar>
-      <Container sx={{ marginTop: 4 }}>
-        <Box>
-            <Outlet context={{user, setUser}} />
-        </Box>
-      </Container>
-    </>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+        <AppBar position="static">
+          <Toolbar>
+            <Typography variant="h6" sx={{ flexGrow: 1 }}>
+              My App
+            </Typography>
+            <Tabs
+              value={value}
+              onChange={handleChange}
+              textColor="inherit"
+              indicatorColor="secondary"
+            >
+              <Tab label="Home" component={Link} to="/" />
+              <Tab label="Profile" component={Link} to="/Profile" />
+              <Tab label="Recipes" component={Link} to="/Recipes" />
+            </Tabs>
+          </Toolbar>
+        </AppBar>
+        <Container sx={{ marginTop: 4 }}>
+          <Box>
+              <Outlet context={{user, setUser}} />
+          </Box>
+        </Container>
+    </ThemeProvider>
   );
 }
 
