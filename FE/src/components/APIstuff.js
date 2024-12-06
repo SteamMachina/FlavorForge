@@ -5,16 +5,10 @@ export async function getRecipes() {
   return response.data;
 }
 
-export async function getRecipesPublished() {
-  const response = await axios.get("http://localhost:3000/recipes", {
-    params: { published: true },
-  });
-  return response.data;
-}
 
 export async function getRecipesRecommended() {
   const response = await axios.get("http://localhost:3000/recipes", {
-    params: { published: true, recommended: true },
+    params: { recommended: true },
   });
   return response.data;
 }
@@ -32,7 +26,7 @@ export async function createUser(name, email, password) {
   });
 }
 
-export async function createRecipe() {
+export async function createRecipe(title, content, authorId) {
   const response = await axios.post("http://localhost:3000/recipes/", {
     title: title,
     content: content,
