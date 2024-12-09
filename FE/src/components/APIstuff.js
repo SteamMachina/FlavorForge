@@ -26,12 +26,20 @@ export async function createUser(name, email, password) {
   return response.data;
 }
 
-export async function createRecipe(title, content, authorId) {
+export async function createRecipeAPI(title, content, authorId) {
   const response = await axios.post("http://localhost:3000/recipes/", {
     title: title,
     content: content,
     authorId: authorId,
   });
+  return response.data;
+}
+
+export async function editRecipeAPI(title, content, recipeId){
+  const response = await axios.put(`http://localhost:3000/recipes/${recipeId}`,{
+    title: title,
+    content: content,
+  })
   return response.data;
 }
 

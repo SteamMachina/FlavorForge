@@ -1,13 +1,27 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useOutletContext } from "react-router-dom";
-import { Container, Typography, Button, Box, Card, CardContent, CardHeader, CircularProgress } from "@mui/material";
+import { 
+  Container, 
+  Typography, 
+  Button, 
+  Box, 
+  Card, 
+  CardContent, 
+  CardHeader, 
+  CircularProgress,
+  IconButton, 
+} from "@mui/material";
 import { getUserRecipes } from "./APIstuff";
+import CreateRecipe from "./createRecipe";
+import EditIcon from "@mui/icons-material/Edit"; 
+import EditRecipe from "./editRecipe";
 
 export default function Profile() {
   const { user, setUser } = useOutletContext();
   const navigate = useNavigate();
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [editingRecipeId, setEditingRecipeId] = useState(null); // Track which recipe is being edited
 
   useEffect(() => {
     if (user == null) {
@@ -33,6 +47,20 @@ export default function Profile() {
   const handleLogout = () => {
     setUser(null); // Clear user context
     navigate("/login"); // Redirect to login page
+  };
+
+  const handleEditClick = (recipeId) => {
+    setEditingRecipeId(recipeId); // Set the recipe being edited
+  };
+
+  const handleRecipeUpdate = (updatedRecipe) => {
+    // Update the specific recipe in the recipes list
+    setRecipes((prevRecipes) =>
+      prevRecipes.map((recipe) =>
+        recipe.id === updatedRecipe.id ? updatedRecipe : recipe
+      )
+    );
+    setEditingRecipeId(null); // Close the edit modal
   };
 
   // If no user, return null to avoid rendering
@@ -75,14 +103,19 @@ export default function Profile() {
         </Button>
       </Box>
 
-      <Typography variant="h5" gutterBottom>
+      <Typography variant="h5" gutterBottom color="#ffffff">
         Your Recipes
       </Typography>
+
+      {user && <CreateRecipe 
+        user={user}
+        onRecipeCreate={(newRecipe) => setRecipes((prevRecipes) => [newRecipe, ...prevRecipes])}
+      />}
 
       {loading ? (
         <CircularProgress />
       ) : recipes.length === 0 ? (
-        <Typography variant="body1" color="text.secondary">
+        <Typography variant="h6" color="#ffffff">
           You haven't added any recipes yet.
         </Typography>
       ) : (
@@ -99,6 +132,14 @@ export default function Profile() {
               <CardHeader
                 title={recipe.title}
                 titleTypographyProps={{ variant: "h6", align: "center" }}
+                action={
+                  <IconButton
+                    color="primary"
+                    onClick={() => handleEditClick(recipe.id)} // Set the recipe to edit
+                  >
+                    <EditIcon />
+                  </IconButton>
+                }
               />
               <CardContent>
                 <Typography variant="body2">{recipe.content}</Typography>
@@ -106,6 +147,14 @@ export default function Profile() {
             </Card>
           ))}
         </Box>
+      )}
+
+      {editingRecipeId && (
+        <EditRecipe
+          recipeId={editingRecipeId}
+          onClose={() => setEditingRecipeId(null)} // Close editor on Cancel
+          onRecipeUpdate={handleRecipeUpdate} // Callback after editing is complete
+        />
       )}
     </Container>
   );

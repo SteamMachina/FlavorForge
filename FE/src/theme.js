@@ -3,11 +3,11 @@ import { createTheme } from "@mui/material/styles";
 const theme = createTheme({
   palette: {
     primary: {
-        main: "#3f51b5", // Primary color
+        main: "#ffa500", // Primary color
         contrastText: "#ffffff", // Text color for components with primary background
       },
       secondary: {
-        main: "#f50057", // Secondary color
+        main: "#0099ff", // Secondary color
         contrastText: "#000000", // Text color for components with secondary background
       },
   },
@@ -22,6 +22,14 @@ const theme = createTheme({
           width: "100vw",
           margin: 0,
           padding: 0,
+        },
+      },
+    },
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          backgroundColor: "#ffffff", // White background for all TextFields
+          borderRadius: 4, // Optional: Rounded corners
         },
       },
     },

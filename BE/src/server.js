@@ -101,7 +101,7 @@ app.get("/recipes/:id", async (req, res) => {
       },
     });
     if (recipe) {
-      res.json(recipe);
+      res.status(200).json(recipe);
     } else {
       res.status(404).json({ error: "Recipe not found" });
     }
@@ -117,43 +117,13 @@ app.get("/recipes/:id", async (req, res) => {
 app.get("/users/:id/recipes", async (req, res) => {
   try {
     const id = req.params.id;
-    const published = req.query.published;
-    const user = await prisma.recipe.findMany({
+    const userRecipes = await prisma.recipe.findMany({
       where: {
         authorId: parseInt(id),
       },
     });
 
-    if (user[0] == null) {
-      res.status(404).json({ error: "User not found or user has no recipe" });
-      return;
-    }
-
-    let allRecipes;
-
-    if (published === "true") {
-      allRecipes = await prisma.recipe.findMany({
-        where: {
-          authorId: parseInt(id),
-          published: true,
-        },
-      });
-    } else if (published === "false") {
-      allRecipes = await prisma.recipe.findMany({
-        where: {
-          authorId: parseInt(id),
-          published: false,
-        },
-      });
-    } else {
-      allRecipes = await prisma.recipe.findMany({
-        where: {
-          authorId: parseInt(id),
-        },
-      });
-    }
-
-    res.status(200).json(allRecipes);
+    res.status(200).json(userRecipes);
     return;
   } catch (e) {
     console.error(e);
@@ -338,8 +308,6 @@ app.put("/recipes/:id", async (req, res) => {
     const recipeID = parseInt(req.params.id);
     const content = req.body.content;
     const title = req.body.title;
-    const published = req.body.published;
-    const recommended = req.body.recommended;
 
     const doesExist = await prisma.user.findUnique({
       where: {
@@ -359,8 +327,6 @@ app.put("/recipes/:id", async (req, res) => {
       data: {
         content: content,
         title: title,
-        published: published === "true",
-        recommended: recommended === "true",
       },
     });
     res.status(200).json(recipe);
