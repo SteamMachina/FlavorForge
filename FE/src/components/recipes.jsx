@@ -13,16 +13,22 @@ import {
 import CreateRecipe from "./createRecipe";
 
 export default function Recipes() {
-  const [recipesList, setRecipesList] = useState();
+  const [recipesList, setRecipesList] = useState([]);
   const { user } = useOutletContext();
 
   useEffect(() => {
+    // Fetch initial recipes list
     getRecipes().then((newData) => setRecipesList(newData));
   }, []);
 
+  const handleRecipeCreate = (newRecipe) => {
+    // Add the new recipe to the beginning of the list
+    setRecipesList((prevRecipes) => [...prevRecipes, newRecipe]);
+  };
+
   return (
     <Container>
-      {user && <CreateRecipe user={user} />}
+      {user && <CreateRecipe user={user} onRecipeCreate={handleRecipeCreate} />}
 
       <Typography variant="h3" align="center" gutterBottom color="#ffffff">
         All Recipes
@@ -34,7 +40,7 @@ export default function Recipes() {
         gap={3}
         sx={{ marginTop: 3 }}
       >
-        {recipesList && recipesList.map((item, index) => (
+        {recipesList.map((item, index) => (
           <Box
             key={index}
             sx={{

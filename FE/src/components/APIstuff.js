@@ -48,6 +48,11 @@ export async function getUser(email) {
   return response.data;
 }
 
+export async function deleteRecipe(recipeId){
+  const response = await axios.delete(`http://localhost:3000/recipes/${recipeId}`);
+  return response.data;
+}
+
 export async function checkLogin(email, password) {
   const response = await axios.get("http://localhost:3000/login/", {
     params: { email: email, password: password },

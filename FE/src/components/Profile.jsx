@@ -1,19 +1,26 @@
+
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useOutletContext } from "react-router-dom";
-import { 
-  Container, 
-  Typography, 
-  Button, 
-  Box, 
-  Card, 
-  CardContent, 
-  CardHeader, 
+import { useOutletContext,useNavigate } from "react-router-dom";
+import {
+  Container,
+  Typography,
+  Button,
+  Box,
+  Card,
+  CardContent,
+  CardHeader,
   CircularProgress,
-  IconButton, 
+  IconButton,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from "@mui/material";
-import { getUserRecipes } from "./APIstuff";
+import { getUserRecipes, deleteRecipe } from "./APIstuff";
 import CreateRecipe from "./createRecipe";
-import EditIcon from "@mui/icons-material/Edit"; 
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import EditRecipe from "./editRecipe";
 
 export default function Profile() {
@@ -22,6 +29,7 @@ export default function Profile() {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingRecipeId, setEditingRecipeId] = useState(null); // Track which recipe is being edited
+  const [deletingRecipeId, setDeletingRecipeId] = useState(null); // Track which recipe is being deleted
 
   useEffect(() => {
     if (user == null) {
@@ -63,12 +71,33 @@ export default function Profile() {
     setEditingRecipeId(null); // Close the edit modal
   };
 
+  const handleDeleteClick = (recipeId) => {
+    setDeletingRecipeId(recipeId); // Set the recipe being deleted
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      await deleteRecipe(deletingRecipeId);
+      setRecipes((prevRecipes) =>
+        prevRecipes.filter((recipe) => recipe.id !== deletingRecipeId)
+      ); // Remove deleted recipe from the list
+    } catch (error) {
+      console.error("Failed to delete recipe:", error);
+    } finally {
+      setDeletingRecipeId(null); // Close the confirmation dialog
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeletingRecipeId(null); // Close the confirmation dialog
+  };
+
   // If no user, return null to avoid rendering
   if (!user) return null;
 
   return (
     <Container
-      maxWidth="sm"
+      maxWidth="lg"
       style={{
         display: "flex",
         flexDirection: "column",
@@ -107,10 +136,14 @@ export default function Profile() {
         Your Recipes
       </Typography>
 
-      {user && <CreateRecipe 
-        user={user}
-        onRecipeCreate={(newRecipe) => setRecipes((prevRecipes) => [newRecipe, ...prevRecipes])}
-      />}
+      {user && (
+        <CreateRecipe
+          user={user}
+          onRecipeCreate={(newRecipe) =>
+            setRecipes((prevRecipes) => [newRecipe, ...prevRecipes])
+          }
+        />
+      )}
 
       {loading ? (
         <CircularProgress />
@@ -122,29 +155,46 @@ export default function Profile() {
         <Box
           sx={{
             display: "flex",
-            flexDirection: "column",
-            gap: 2,
-            width: "100%",
+            flexWrap: "wrap", // Allow wrapping for responsiveness
+            gap: 3, // Space between items
+            justifyContent: "center", // Center items horizontally
           }}
         >
           {recipes.map((recipe) => (
-            <Card key={recipe.id} sx={{ boxShadow: 2 }}>
-              <CardHeader
-                title={recipe.title}
-                titleTypographyProps={{ variant: "h6", align: "center" }}
-                action={
-                  <IconButton
-                    color="primary"
-                    onClick={() => handleEditClick(recipe.id)} // Set the recipe to edit
-                  >
-                    <EditIcon />
-                  </IconButton>
-                }
-              />
-              <CardContent>
-                <Typography variant="body2">{recipe.content}</Typography>
-              </CardContent>
-            </Card>
+            <Box
+              key={recipe.id}
+              sx={{
+                flex: "1 1 calc(33.333% - 16px)", // 3 items per row with gap
+                maxWidth: "calc(33.333% - 16px)", // Ensure max width aligns with flex
+                boxShadow: 2,
+              }}
+            >
+              <Card>
+                <CardHeader
+                  title={recipe.title}
+                  titleTypographyProps={{ variant: "h6", align: "center" }}
+                  action={
+                    <>
+                      <IconButton
+                        color="primary"
+                        onClick={() => handleEditClick(recipe.id)} // Set the recipe to edit
+                      >
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton
+                        color="secondary"
+                        onClick={() => handleDeleteClick(recipe.id)} // Set the recipe to delete
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </>
+                  }
+                />
+                <CardContent>
+                  <Typography variant="body2">{recipe.content}</Typography>
+                </CardContent>
+              </Card>
+            </Box>
           ))}
         </Box>
       )}
@@ -156,6 +206,30 @@ export default function Profile() {
           onRecipeUpdate={handleRecipeUpdate} // Callback after editing is complete
         />
       )}
+
+      {/* Confirmation Dialog */}
+      <Dialog
+        open={Boolean(deletingRecipeId)}
+        onClose={handleDeleteCancel}
+        aria-labelledby="delete-confirmation-dialog-title"
+      >
+        <DialogTitle id="delete-confirmation-dialog-title">
+          Confirm Deletion
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this recipe? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteCancel} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleDeleteConfirm} color="secondary" autoFocus>
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 }
