@@ -122,7 +122,7 @@ export default function Register() {
           style={{ marginTop: "16px" }}
           onClick={handleRegister}
         >
-          Login
+          Register
         </Button>
       </Box>
     </Container>

@@ -18,10 +18,18 @@ export async function getUsers() {
 }
 
 export async function createUser(name, email, password) {
-  await axios.post("http://localhost:3000/users/", {
+  const response = await axios.post("http://localhost:3000/users/", {
     email: email,
     name: name,
     password: password,
+  });
+  return response.data;
+}
+
+export async function editUserAPI(name, email, userId) {
+  const response = await axios.put(`http://localhost:3000/users/${userId}/`, {
+    email: email,
+    name: name,
   });
   return response.data;
 }
@@ -35,11 +43,14 @@ export async function createRecipeAPI(title, content, authorId) {
   return response.data;
 }
 
-export async function editRecipeAPI(title, content, recipeId){
-  const response = await axios.put(`http://localhost:3000/recipes/${recipeId}`,{
-    title: title,
-    content: content,
-  })
+export async function editRecipeAPI(title, content, recipeId) {
+  const response = await axios.put(
+    `http://localhost:3000/recipes/${recipeId}`,
+    {
+      title: title,
+      content: content,
+    }
+  );
   return response.data;
 }
 
@@ -48,8 +59,10 @@ export async function getUser(email) {
   return response.data;
 }
 
-export async function deleteRecipe(recipeId){
-  const response = await axios.delete(`http://localhost:3000/recipes/${recipeId}`);
+export async function deleteRecipe(recipeId) {
+  const response = await axios.delete(
+    `http://localhost:3000/recipes/${recipeId}`
+  );
   return response.data;
 }
 

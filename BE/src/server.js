@@ -234,13 +234,13 @@ app.post("/recipes/", async (req, res) => {
 
 app.put("/users/:id", async (req, res) => {
   try {
-    const userID = parseInt(req.params.id);
+    const userId = parseInt(req.params.id);
     const email = req.body.email;
     const name = req.body.name;
 
     const doesExist = await prisma.user.findUnique({
       where: {
-        id: userID,
+        id: userId,
       },
     });
 
@@ -249,9 +249,23 @@ app.put("/users/:id", async (req, res) => {
       return;
     }
 
+    const emailInUse = await prisma.user.findFirst({
+      where: {
+        email: email,
+        NOT: {
+          id: userId, // Exclude the current user's ID
+        },
+      },
+    });
+
+    if (emailInUse) {
+      res.status(409).json({ error: "Email already in use" });
+      return;
+    }
+
     const user = await prisma.user.update({
       where: {
-        id: userID,
+        id: userId,
       },
       data: {
         email: email,

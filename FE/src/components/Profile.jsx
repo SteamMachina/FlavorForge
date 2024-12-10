@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from "react";
-import { useOutletContext,useNavigate } from "react-router-dom";
+import { useOutletContext, useNavigate } from "react-router-dom";
 import {
   Container,
   Typography,
@@ -16,8 +15,10 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  TextField,
+  Alert,
 } from "@mui/material";
-import { getUserRecipes, deleteRecipe } from "./APIstuff";
+import { getUserRecipes, deleteRecipe, editUserAPI } from "./APIstuff";
 import CreateRecipe from "./createRecipe";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -30,6 +31,13 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [editingRecipeId, setEditingRecipeId] = useState(null); // Track which recipe is being edited
   const [deletingRecipeId, setDeletingRecipeId] = useState(null); // Track which recipe is being deleted
+  const [editingUser, setEditingUser] = useState(false); // Track user edit state
+  const [userDetails, setUserDetails] = useState({ name: "", email: "" }); // Temp user state for editing
+  const [alert, setAlert] = useState({
+    message: "",
+    severity: "",
+    visible: false,
+  });
 
   useEffect(() => {
     if (user == null) {
@@ -43,7 +51,11 @@ export default function Profile() {
         const userRecipes = await getUserRecipes(user.id);
         setRecipes(userRecipes);
       } catch (error) {
-        console.error("Failed to fetch user recipes:", error);
+        setAlert({
+          message: "Failed to fetch user recipes.",
+          severity: "error", // Adjust severity if needed
+          visible: true,
+        });
       } finally {
         setLoading(false);
       }
@@ -82,7 +94,11 @@ export default function Profile() {
         prevRecipes.filter((recipe) => recipe.id !== deletingRecipeId)
       ); // Remove deleted recipe from the list
     } catch (error) {
-      console.error("Failed to delete recipe:", error);
+      setAlert({
+        message: "Failed to delete Recipe.",
+        severity: "error", // Adjust severity if needed
+        visible: true,
+      });
     } finally {
       setDeletingRecipeId(null); // Close the confirmation dialog
     }
@@ -90,6 +106,31 @@ export default function Profile() {
 
   const handleDeleteCancel = () => {
     setDeletingRecipeId(null); // Close the confirmation dialog
+  };
+
+  // Handle opening the Edit User Details modal
+  const handleEditUserClick = () => {
+    setUserDetails({ name: user.name, email: user.email }); // Set initial user details
+    setEditingUser(true); // Open modal
+  };
+
+  // Handle saving updated user details
+  const handleEditUserSave = async () => {
+    try {
+      const updatedUser = await editUserAPI(
+        userDetails.name,
+        userDetails.email,
+        user.id
+      );
+      setUser(updatedUser); // Update user in context
+      setEditingUser(false); // Close modal
+    } catch (error) {
+      setAlert({
+        message: "Failed to update User.",
+        severity: "error", // Adjust severity if needed
+        visible: true,
+      });
+    }
   };
 
   // If no user, return null to avoid rendering
@@ -106,6 +147,16 @@ export default function Profile() {
         minHeight: "100vh",
       }}
     >
+      {alert.visible && (
+        <Alert
+          variant="filled"
+          severity={alert.severity}
+          style={{ marginBottom: "16px" }}
+          onClose={() => setAlert({ ...alert, visible: false })} // Close button handler
+        >
+          {alert.message}
+        </Alert>
+      )}
       <Box
         sx={{
           boxShadow: 3,
@@ -122,14 +173,18 @@ export default function Profile() {
         <Typography variant="body1" gutterBottom>
           <strong>Email:</strong> {user.email || "N/A"}
         </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          style={{ marginTop: "16px" }}
-          onClick={handleLogout}
-        >
-          Logout
-        </Button>
+        <Box sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
+          <Button variant="contained" color="primary" onClick={handleLogout}>
+            Logout
+          </Button>
+          <Button
+            variant="outlined"
+            color="primary"
+            onClick={handleEditUserClick} // Open edit user modal
+          >
+            Edit User Details
+          </Button>
+        </Box>
       </Box>
 
       <Typography variant="h5" gutterBottom color="#ffffff">
@@ -218,7 +273,8 @@ export default function Profile() {
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete this recipe? This action cannot be undone.
+            Are you sure you want to delete this recipe? This action cannot be
+            undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -227,6 +283,45 @@ export default function Profile() {
           </Button>
           <Button onClick={handleDeleteConfirm} color="secondary" autoFocus>
             Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Edit User Details Dialog */}
+      <Dialog
+        open={editingUser}
+        onClose={() => setEditingUser(false)}
+        aria-labelledby="edit-user-dialog-title"
+      >
+        <DialogTitle id="edit-user-dialog-title">Edit User Details</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Name"
+            name="name"
+            value={userDetails.name}
+            onChange={(e) =>
+              setUserDetails({ ...userDetails, name: e.target.value })
+            }
+            fullWidth
+            margin="normal"
+          />
+          <TextField
+            label="Email"
+            name="email"
+            value={userDetails.email}
+            onChange={(e) =>
+              setUserDetails({ ...userDetails, email: e.target.value })
+            }
+            fullWidth
+            margin="normal"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditingUser(false)} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleEditUserSave} color="secondary">
+            Save
           </Button>
         </DialogActions>
       </Dialog>
