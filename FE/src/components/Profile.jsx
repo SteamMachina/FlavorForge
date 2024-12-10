@@ -15,24 +15,23 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  TextField,
   Alert,
 } from "@mui/material";
-import { getUserRecipes, deleteRecipe, editUserAPI } from "./APIstuff";
+import { getUserRecipes, deleteRecipe } from "./APIstuff";
 import CreateRecipe from "./createRecipe";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditRecipe from "./editRecipe";
+import EditUser from "./editUser";
 
 export default function Profile() {
   const { user, setUser } = useOutletContext();
   const navigate = useNavigate();
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [editingRecipeId, setEditingRecipeId] = useState(null); // Track which recipe is being edited
-  const [deletingRecipeId, setDeletingRecipeId] = useState(null); // Track which recipe is being deleted
-  const [editingUser, setEditingUser] = useState(false); // Track user edit state
-  const [userDetails, setUserDetails] = useState({ name: "", email: "" }); // Temp user state for editing
+  const [editingRecipeId, setEditingRecipeId] = useState(null);
+  const [deletingRecipeId, setDeletingRecipeId] = useState(null);
+  const [editingUser, setEditingUser] = useState(false);
   const [alert, setAlert] = useState({
     message: "",
     severity: "",
@@ -45,7 +44,6 @@ export default function Profile() {
       return;
     }
 
-    // Fetch user's recipes
     const fetchRecipes = async () => {
       try {
         const userRecipes = await getUserRecipes(user.id);
@@ -53,7 +51,7 @@ export default function Profile() {
       } catch (error) {
         setAlert({
           message: "Failed to fetch user recipes.",
-          severity: "error", // Adjust severity if needed
+          severity: "error",
           visible: true,
         });
       } finally {
@@ -65,26 +63,25 @@ export default function Profile() {
   }, [user, navigate]);
 
   const handleLogout = () => {
-    setUser(null); // Clear user context
-    navigate("/login"); // Redirect to login page
+    setUser(null);
+    navigate("/login");
   };
 
   const handleEditClick = (recipeId) => {
-    setEditingRecipeId(recipeId); // Set the recipe being edited
+    setEditingRecipeId(recipeId);
   };
 
   const handleRecipeUpdate = (updatedRecipe) => {
-    // Update the specific recipe in the recipes list
     setRecipes((prevRecipes) =>
       prevRecipes.map((recipe) =>
         recipe.id === updatedRecipe.id ? updatedRecipe : recipe
       )
     );
-    setEditingRecipeId(null); // Close the edit modal
+    setEditingRecipeId(null);
   };
 
   const handleDeleteClick = (recipeId) => {
-    setDeletingRecipeId(recipeId); // Set the recipe being deleted
+    setDeletingRecipeId(recipeId);
   };
 
   const handleDeleteConfirm = async () => {
@@ -92,48 +89,27 @@ export default function Profile() {
       await deleteRecipe(deletingRecipeId);
       setRecipes((prevRecipes) =>
         prevRecipes.filter((recipe) => recipe.id !== deletingRecipeId)
-      ); // Remove deleted recipe from the list
+      );
     } catch (error) {
       setAlert({
         message: "Failed to delete Recipe.",
-        severity: "error", // Adjust severity if needed
+        severity: "error",
         visible: true,
       });
     } finally {
-      setDeletingRecipeId(null); // Close the confirmation dialog
+      setDeletingRecipeId(null);
     }
   };
 
   const handleDeleteCancel = () => {
-    setDeletingRecipeId(null); // Close the confirmation dialog
+    setDeletingRecipeId(null);
   };
 
-  // Handle opening the Edit User Details modal
-  const handleEditUserClick = () => {
-    setUserDetails({ name: user.name, email: user.email }); // Set initial user details
-    setEditingUser(true); // Open modal
+  const handleUserUpdate = (updatedUser) => {
+    setUser(updatedUser);
+    setEditingUser(false);
   };
 
-  // Handle saving updated user details
-  const handleEditUserSave = async () => {
-    try {
-      const updatedUser = await editUserAPI(
-        userDetails.name,
-        userDetails.email,
-        user.id
-      );
-      setUser(updatedUser); // Update user in context
-      setEditingUser(false); // Close modal
-    } catch (error) {
-      setAlert({
-        message: "Failed to update User.",
-        severity: "error", // Adjust severity if needed
-        visible: true,
-      });
-    }
-  };
-
-  // If no user, return null to avoid rendering
   if (!user) return null;
 
   return (
@@ -152,7 +128,7 @@ export default function Profile() {
           variant="filled"
           severity={alert.severity}
           style={{ marginBottom: "16px" }}
-          onClose={() => setAlert({ ...alert, visible: false })} // Close button handler
+          onClose={() => setAlert({ ...alert, visible: false })}
         >
           {alert.message}
         </Alert>
@@ -180,7 +156,7 @@ export default function Profile() {
           <Button
             variant="outlined"
             color="primary"
-            onClick={handleEditUserClick} // Open edit user modal
+            onClick={() => setEditingUser(true)}
           >
             Edit User Details
           </Button>
@@ -210,17 +186,17 @@ export default function Profile() {
         <Box
           sx={{
             display: "flex",
-            flexWrap: "wrap", // Allow wrapping for responsiveness
-            gap: 3, // Space between items
-            justifyContent: "center", // Center items horizontally
+            flexWrap: "wrap",
+            gap: 3,
+            justifyContent: "center",
           }}
         >
           {recipes.map((recipe) => (
             <Box
               key={recipe.id}
               sx={{
-                flex: "1 1 calc(33.333% - 16px)", // 3 items per row with gap
-                maxWidth: "calc(33.333% - 16px)", // Ensure max width aligns with flex
+                flex: "1 1 calc(33.333% - 16px)",
+                maxWidth: "calc(33.333% - 16px)",
                 boxShadow: 2,
               }}
             >
@@ -232,13 +208,13 @@ export default function Profile() {
                     <>
                       <IconButton
                         color="primary"
-                        onClick={() => handleEditClick(recipe.id)} // Set the recipe to edit
+                        onClick={() => handleEditClick(recipe.id)}
                       >
                         <EditIcon />
                       </IconButton>
                       <IconButton
                         color="secondary"
-                        onClick={() => handleDeleteClick(recipe.id)} // Set the recipe to delete
+                        onClick={() => handleDeleteClick(recipe.id)}
                       >
                         <DeleteIcon />
                       </IconButton>
@@ -257,12 +233,19 @@ export default function Profile() {
       {editingRecipeId && (
         <EditRecipe
           recipeId={editingRecipeId}
-          onClose={() => setEditingRecipeId(null)} // Close editor on Cancel
-          onRecipeUpdate={handleRecipeUpdate} // Callback after editing is complete
+          onClose={() => setEditingRecipeId(null)}
+          onRecipeUpdate={handleRecipeUpdate}
         />
       )}
 
-      {/* Confirmation Dialog */}
+      {editingUser && (
+        <EditUser
+          userId={user.id}
+          onClose={() => setEditingUser(false)}
+          onUserUpdate={handleUserUpdate}
+        />
+      )}
+
       <Dialog
         open={Boolean(deletingRecipeId)}
         onClose={handleDeleteCancel}
@@ -283,45 +266,6 @@ export default function Profile() {
           </Button>
           <Button onClick={handleDeleteConfirm} color="secondary" autoFocus>
             Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Edit User Details Dialog */}
-      <Dialog
-        open={editingUser}
-        onClose={() => setEditingUser(false)}
-        aria-labelledby="edit-user-dialog-title"
-      >
-        <DialogTitle id="edit-user-dialog-title">Edit User Details</DialogTitle>
-        <DialogContent>
-          <TextField
-            label="Name"
-            name="name"
-            value={userDetails.name}
-            onChange={(e) =>
-              setUserDetails({ ...userDetails, name: e.target.value })
-            }
-            fullWidth
-            margin="normal"
-          />
-          <TextField
-            label="Email"
-            name="email"
-            value={userDetails.email}
-            onChange={(e) =>
-              setUserDetails({ ...userDetails, email: e.target.value })
-            }
-            fullWidth
-            margin="normal"
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setEditingUser(false)} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleEditUserSave} color="secondary">
-            Save
           </Button>
         </DialogActions>
       </Dialog>

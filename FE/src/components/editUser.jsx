@@ -11,6 +11,11 @@ import { editUserAPI } from "./APIstuff";
 
 export default function EditUser({ userId, onClose, onUserUpdate }) {
   const [userDetails, setUserDetails] = useState({ name: "", email: "" });
+  const [alert, setAlert] = useState({
+    message: "",
+    severity: "",
+    visible: false,
+  });
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -18,14 +23,22 @@ export default function EditUser({ userId, onClose, onUserUpdate }) {
   };
 
   const handleEditUser = async () => {
-    const updatedUser = await editUserAPI(
-      userDetails.name,
-      userDetails.email,
-      userId
-    );
-    setUserDetails({ name: "", email: "" }); // Reset form
-    if (onUserUpdate) onUserUpdate(updatedUser); // Notify parent with updated user
-    if (onClose) onClose(); // Close the editor
+    try {
+      const updatedUser = await editUserAPI(
+        userDetails.name,
+        userDetails.email,
+        userId
+      );
+      setUserDetails({ name: "", email: "" }); // Reset form
+      if (onUserUpdate) onUserUpdate(updatedUser); // Notify parent with updated user
+      if (onClose) onClose(); // Close the editor
+    } catch (error) {
+      setAlert({
+        message: "Failed to edit user.",
+        severity: "error",
+        visible: true,
+      });
+    }
   };
 
   return (
