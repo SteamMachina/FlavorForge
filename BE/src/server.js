@@ -8,38 +8,13 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// this is the simpliest example - if you go to the localhost:3000, if show you "Hello world"
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
 
-app.get("/users/", async (req, res) => {
-  try {
-    const allUsers = await prisma.user.findMany();
 
-    res.status(200).json(allUsers);
-    return;
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: "Error getting the users" });
-  }
-});
-
-// TASK 1 - Get all recipes with optional filter for published via query ?published=true
-// Handle error 500
-// Tips https://docs.google.com/presentation/d/1IyK-z95aTWcT0LNyZt5itBbuawNY-zFxaNTih4MhfKQ/edit?usp=sharing
-// Tips https://docs.google.com/presentation/d/17hIxbj8vsy7opjUwVM5RIjdRCf41Xts-EGLRMFNJnJg/edit?usp=sharing
 app.get("/recipes/", async (req, res) => {
   try {
-    const { published, recommended } = req.query; // Destructure query parameters
+    const recommended = req.query; 
     const filters = {};
 
-    // Apply filters based on the published query parameter
-    if (published === "true") {
-      filters.published = true;
-    } else if (published === "false") {
-      filters.published = false;
-    }
 
     // Apply filters based on the recommended query parameter
     if (recommended === "true") {
@@ -56,12 +31,6 @@ app.get("/recipes/", async (req, res) => {
       },
     });
 
-    //Obsolete code used to implement images (for future projects)
-    /*const recipes = allRecipes.map((recipe) => {
-      const { image, ...rest } = recipe; // Destructure image out of the recipe
-      return image ? recipe : rest; // Include image only if it exists
-    });*/
-
     res.status(200).json(allRecipes);
   } catch (e) {
     console.error(e);
@@ -69,18 +38,20 @@ app.get("/recipes/", async (req, res) => {
   }
 });
 
-// TASK 2 - Get specific user
-// Handle error 404 - not found, 500 - generic error
+// Get specific user using the email field
 app.get("/users/:email", async (req, res) => {
   try {
+
     const user = await prisma.user.findUnique({
       where: {
         email: req.params.email,
       },
     });
+
+    // Checks if user is found
     if (user) {
       user.password = undefined;
-      res.json(user);
+      res.status(200).json(user);
     } else {
       res.status(404).json({ error: "User not found" });
     }
@@ -90,9 +61,7 @@ app.get("/users/:email", async (req, res) => {
   }
 });
 
-// TASK 3 - Get specific recipe
-// Handle error 404 -  not found, 500 - generic error
-
+// request for a single recipe, unused but may be useful for continuing this project
 app.get("/recipes/:id", async (req, res) => {
   try {
     const recipe = await prisma.recipe.findUnique({
@@ -111,8 +80,8 @@ app.get("/recipes/:id", async (req, res) => {
   }
 });
 
-// TASK 4 - Get all recipes from the user, add optional filter for publish via query ?published=true
-// Handle error 404 - user not found, 500 - generic error
+
+// Get all recipes made by a specified user
 
 app.get("/users/:id/recipes", async (req, res) => {
   try {
@@ -131,10 +100,7 @@ app.get("/users/:id/recipes", async (req, res) => {
   }
 });
 
-// TASK 5 - Create USER
-// Correct status 201 on created,
-// Handle error 409  - conflict, 500 - generic error
-
+// Create
 app.post("/users/", async (req, res) => {
   try {
     const email = req.body.email;
@@ -330,7 +296,7 @@ app.put("/recipes/:id", async (req, res) => {
     });
 
     if (!doesExist) {
-      res.status(409).json({ error: "The recipe doesn't exists" });
+      res.status(404).json({ error: "The recipe is not found" });
       return;
     }
 

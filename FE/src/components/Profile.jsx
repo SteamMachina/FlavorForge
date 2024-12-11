@@ -292,6 +292,29 @@ export default function Profile() {
           </Button>
         </DialogActions>
       </Dialog>
+      <Dialog
+      open={deletingAccount}
+      onClose={() => setDeletingAccount(false)}
+      aria-labelledby="delete-account-dialog-title"
+    >
+      <DialogTitle id="delete-account-dialog-title">
+        Confirm Account Deletion
+      </DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          Are you sure you want to delete your account? This action cannot be
+          undone.
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setDeletingAccount(false)} color="primary">
+          Cancel
+        </Button>
+        <Button onClick={handleDeleteAccount} color="secondary" autoFocus>
+          Delete Account
+        </Button>
+      </DialogActions>
+    </Dialog>
     </Container>
   );
 }

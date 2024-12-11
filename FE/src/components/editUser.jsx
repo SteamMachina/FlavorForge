@@ -6,6 +6,7 @@ import {
   Backdrop,
   Typography,
   Paper,
+  Alert,
 } from "@mui/material";
 import { editUserAPI } from "./APIstuff";
 
@@ -33,6 +34,13 @@ export default function EditUser({ userId, onClose, onUserUpdate }) {
       if (onUserUpdate) onUserUpdate(updatedUser); // Notify parent with updated user
       if (onClose) onClose(); // Close the editor
     } catch (error) {
+      if (error.response && error.response.status === 409) {
+        setAlert({
+          message: "New email already in use.",
+          severity: "warning", 
+          visible: true,
+        });
+      }
       setAlert({
         message: "Failed to edit user.",
         severity: "error",
@@ -60,6 +68,16 @@ export default function EditUser({ userId, onClose, onUserUpdate }) {
           borderRadius: 2,
         }}
       >
+        {alert.visible && (
+      <Alert
+        variant="filled"
+        severity={alert.severity}
+        style={{ marginBottom: "16px" }}
+        onClose={() => setAlert({ ...alert, visible: false })}
+      >
+        {alert.message}
+      </Alert>
+    )}
         <Typography variant="h5" gutterBottom align="center">
           Edit User
         </Typography>
