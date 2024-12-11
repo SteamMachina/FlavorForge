@@ -17,10 +17,10 @@ import {
   DialogTitle,
   Alert,
 } from "@mui/material";
-import { getUserRecipes, deleteRecipe } from "./APIstuff";
-import CreateRecipe from "./createRecipe";
+import { getUserRecipes, deleteRecipe,deleteUser } from "./APIstuff";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import CreateRecipe from "./createRecipe";
 import EditRecipe from "./editRecipe";
 import EditUser from "./editUser";
 
@@ -32,6 +32,7 @@ export default function Profile() {
   const [editingRecipeId, setEditingRecipeId] = useState(null);
   const [deletingRecipeId, setDeletingRecipeId] = useState(null);
   const [editingUser, setEditingUser] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
   const [alert, setAlert] = useState({
     message: "",
     severity: "",
@@ -110,58 +111,80 @@ export default function Profile() {
     setEditingUser(false);
   };
 
+  const handleDeleteAccount = async () => {
+    try {
+      await deleteUser(user.id); // Call API to delete the user account
+      setUser(null); // Clear user state
+      navigate("/login"); // Redirect to login after account deletion
+    } catch (error) {
+      setAlert({
+        message: "Failed to delete your account.",
+        severity: "error",
+        visible: true,
+      });
+    }
+  };
+  
+
   if (!user) return null;
 
   return (
     <Container
-      maxWidth="lg"
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        minHeight: "100vh",
+    maxWidth="lg"
+    style={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      minHeight: "100vh",
+    }}
+  >
+    {alert.visible && (
+      <Alert
+        variant="filled"
+        severity={alert.severity}
+        style={{ marginBottom: "16px" }}
+        onClose={() => setAlert({ ...alert, visible: false })}
+      >
+        {alert.message}
+      </Alert>
+    )}
+    <Box
+      sx={{
+        boxShadow: 3,
+        padding: 4,
+        borderRadius: 2,
+        backgroundColor: "#fff",
+        textAlign: "center",
+        marginBottom: 4,
       }}
     >
-      {alert.visible && (
-        <Alert
-          variant="filled"
-          severity={alert.severity}
-          style={{ marginBottom: "16px" }}
-          onClose={() => setAlert({ ...alert, visible: false })}
+      <Typography variant="h4" gutterBottom>
+        Welcome, {user.name || "User"}!
+      </Typography>
+      <Typography variant="body1" gutterBottom>
+        <strong>Email:</strong> {user.email || "N/A"}
+      </Typography>
+      <Box sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
+        <Button variant="contained" color="primary" onClick={handleLogout}>
+          Logout
+        </Button>
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={() => setEditingUser(true)}
         >
-          {alert.message}
-        </Alert>
-      )}
-      <Box
-        sx={{
-          boxShadow: 3,
-          padding: 4,
-          borderRadius: 2,
-          backgroundColor: "#fff",
-          textAlign: "center",
-          marginBottom: 4,
-        }}
-      >
-        <Typography variant="h4" gutterBottom>
-          Welcome, {user.name || "User"}!
-        </Typography>
-        <Typography variant="body1" gutterBottom>
-          <strong>Email:</strong> {user.email || "N/A"}
-        </Typography>
-        <Box sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
-          <Button variant="contained" color="primary" onClick={handleLogout}>
-            Logout
-          </Button>
-          <Button
-            variant="outlined"
-            color="primary"
-            onClick={() => setEditingUser(true)}
-          >
-            Edit User Details
-          </Button>
-        </Box>
+          Edit User Details
+        </Button>
+        <Button
+          variant="outlined"
+          color="error"
+          onClick={() => setDeletingAccount(true)}
+        >
+          Delete My Account
+        </Button>
       </Box>
+    </Box>
 
       <Typography variant="h5" gutterBottom color="#ffffff">
         Your Recipes
