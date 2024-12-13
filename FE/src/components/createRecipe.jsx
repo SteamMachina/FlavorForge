@@ -1,19 +1,46 @@
 import React, { useState } from "react";
-import { Box, Button, TextField, Collapse } from "@mui/material";
+import { Box, Button, TextField, Collapse, Alert } from "@mui/material";
 import { createRecipeAPI } from "./APIstuff";
 
 export default function CreateRecipe({ user, onRecipeCreate }) {
   const [showForm, setShowForm] = useState(false);
   const [newRecipe, setNewRecipe] = useState({ title: "", content: "" });
+  const [alert, setAlert] = useState({
+    message: "",
+    severity: "",
+    visible: false,
+  });
 
   const handleInputChange = (e) => {
+    // Makes sure that the Recipe information stays up to date with user input
     const { name, value } = e.target;
     setNewRecipe((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleCreateRecipe = async () => {
     if (!user) return; // Ensure user is defined
-    const createdRecipe = await createRecipeAPI(newRecipe.title, newRecipe.content, user.id);
+    try {
+      const createdRecipe = await createRecipeAPI(
+        newRecipe.title,
+        newRecipe.content,
+        user.id
+      );
+    } catch (error) {
+      // error handling
+      if (error.response && error.response.status === 409) {
+        setAlert({
+          message: "Recipe already exists.",
+          severity: "warning",
+          visible: true,
+        });
+      } else {
+        setAlert({
+          message: "Failed to create Recipe.",
+          severity: "error",
+          visible: true,
+        });
+      }
+    }
 
     if (onRecipeCreate) {
       onRecipeCreate(createdRecipe); // Notify the parent to update the recipes list
@@ -25,6 +52,16 @@ export default function CreateRecipe({ user, onRecipeCreate }) {
 
   return (
     <>
+      {alert.visible && (
+        <Alert
+          variant="filled"
+          severity={alert.severity}
+          style={{ marginBottom: "16px" }}
+          onClose={() => setAlert({ ...alert, visible: false })}
+        >
+          {alert.message}
+        </Alert>
+      )}
       <Box textAlign="center" marginY={3}>
         <Button
           variant="contained"

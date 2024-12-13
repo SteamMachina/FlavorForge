@@ -1,9 +1,21 @@
 import React, { useState } from "react";
-import { Box, Button, TextField, Backdrop, Typography, Paper } from "@mui/material";
+import {
+  Box,
+  Button,
+  TextField,
+  Backdrop,
+  Typography,
+  Paper,
+} from "@mui/material";
 import { editRecipeAPI } from "./APIstuff";
 
 export default function EditRecipe({ recipeId, onClose, onRecipeUpdate }) {
   const [newRecipe, setNewRecipe] = useState({ title: "", content: "" });
+  const [alert, setAlert] = useState({
+    message: "",
+    severity: "",
+    visible: false,
+  });
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -11,7 +23,21 @@ export default function EditRecipe({ recipeId, onClose, onRecipeUpdate }) {
   };
 
   const handleEditRecipe = async () => {
-    const updatedRecipe = await editRecipeAPI(newRecipe.title, newRecipe.content, recipeId);
+    try {
+      const updatedRecipe = await editRecipeAPI(
+        newRecipe.title,
+        newRecipe.content,
+        recipeId
+      );
+    } catch (error) {
+      // error handling
+      setAlert({
+        message: "Failed to edit Recipe.",
+        severity: "error",
+        visible: true,
+      });
+    }
+
     setNewRecipe({ title: "", content: "" });
     if (onRecipeUpdate) onRecipeUpdate(updatedRecipe); // Notify parent with updated recipe
     if (onClose) onClose(); // Close the editor

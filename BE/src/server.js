@@ -8,13 +8,11 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-
-
+// Get Recipes with optional recommended filter
 app.get("/recipes/", async (req, res) => {
   try {
-    const recommended = req.query; 
+    const recommended = req.query;
     const filters = {};
-
 
     // Apply filters based on the recommended query parameter
     if (recommended === "true") {
@@ -41,7 +39,6 @@ app.get("/recipes/", async (req, res) => {
 // Get specific user using the email field
 app.get("/users/:email", async (req, res) => {
   try {
-
     const user = await prisma.user.findUnique({
       where: {
         email: req.params.email,
@@ -80,9 +77,7 @@ app.get("/recipes/:id", async (req, res) => {
   }
 });
 
-
 // Get all recipes made by a specified user
-
 app.get("/users/:id/recipes", async (req, res) => {
   try {
     const id = req.params.id;
@@ -100,7 +95,7 @@ app.get("/users/:id/recipes", async (req, res) => {
   }
 });
 
-// Create
+// Create a user
 app.post("/users/", async (req, res) => {
   try {
     const email = req.body.email;
@@ -132,7 +127,7 @@ app.post("/users/", async (req, res) => {
   }
 });
 
-//check login
+// Check login information sent by the user
 app.get("/login/", async (req, res) => {
   try {
     const email = req.query.email;
@@ -157,9 +152,7 @@ app.get("/login/", async (req, res) => {
   }
 });
 
-// TASK 6 - Create recipe
-// Handle error 409  - conflict, 500 - generic error
-
+// Create a recipe
 app.post("/recipes/", async (req, res) => {
   try {
     const recipeTitle = req.body.title;
@@ -195,9 +188,7 @@ app.post("/recipes/", async (req, res) => {
   }
 });
 
-// TASK 7 - Update  USER
-// Handle error 404  - not found, 500 - generic error
-
+// Update User
 app.put("/users/:id", async (req, res) => {
   try {
     const userId = parseInt(req.params.id);
@@ -245,8 +236,7 @@ app.put("/users/:id", async (req, res) => {
   }
 });
 
-// TASK 8 - Delete USER
-
+// Delete user along with his recipes
 app.delete("/users/:id", async (req, res) => {
   try {
     const userID = parseInt(req.params.id);
@@ -282,7 +272,6 @@ app.delete("/users/:id", async (req, res) => {
 });
 
 // Update recipe
-
 app.put("/recipes/:id", async (req, res) => {
   try {
     const recipeID = parseInt(req.params.id);
@@ -316,8 +305,7 @@ app.put("/recipes/:id", async (req, res) => {
   }
 });
 
-// delete recipe
-
+// Delete recipe
 app.delete("/recipes/:id", async (req, res) => {
   try {
     const recipeID = parseInt(req.params.id);

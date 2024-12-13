@@ -29,9 +29,10 @@ export default function Recipes() {
   };
 
   // Filter recipes based on the search term
-  const filteredRecipes = recipesList.filter((recipe) =>
-    recipe.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    recipe.content.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredRecipes = recipesList.filter(
+    (recipe) =>
+      recipe.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      recipe.content.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -87,9 +88,6 @@ export default function Recipes() {
                   <strong>Author:</strong> {item.author?.name || "Unknown"}
                 </Typography>
               </CardContent>
-              <CardActions>
-                {/* Add any additional buttons/actions here */}
-              </CardActions>
             </Card>
           </Box>
         ))}

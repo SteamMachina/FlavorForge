@@ -56,9 +56,6 @@ export default function Home() {
                   <strong>Author:</strong> {item.author?.name || "Unknown"}
                 </Typography>
               </CardContent>
-              <CardActions>
-                {/* Add any additional buttons/actions here */}
-              </CardActions>
             </Card>
           </Box>
         ))}
