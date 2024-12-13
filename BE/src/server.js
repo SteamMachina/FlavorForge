@@ -8,26 +8,38 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Get Recipes with optional recommended filter
+// Get Recipes with optional recommended
 app.get("/recipes/", async (req, res) => {
   try {
-    const recommended = req.query;
-    const filters = {};
+    const recommended = req.query.recommended;
 
-    // Apply filters based on the recommended query parameter
+    let allRecipes;
+
     if (recommended === "true") {
-      filters.recommended = true;
+      allRecipes = await prisma.recipe.findMany({
+        where: {
+          recommended: true,
+        },
+        include: {
+          author: true, // Include author details
+        },
+      });
     } else if (recommended === "false") {
-      filters.recommended = false;
+      allRecipes = await prisma.recipe.findMany({
+        where: {
+          recommended: false,
+        },
+        include: {
+          author: true,
+        },
+      });
+    } else {
+      allRecipes = await prisma.recipe.findMany({
+        include: {
+          author: true,
+        },
+      });
     }
-
-    // Fetch recipes with author details
-    const allRecipes = await prisma.recipe.findMany({
-      where: filters,
-      include: {
-        author: true, // Include author details
-      },
-    });
 
     res.status(200).json(allRecipes);
   } catch (e) {
